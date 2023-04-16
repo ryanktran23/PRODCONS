@@ -8,18 +8,18 @@
 
 using namespace std;
 
-// Structure for Sales Record
+// This is the structure for Sales Record.
 struct Record {
     int dd, mm, storeID, registerNum;
     float saleAmount;
 };
 
-// Global Variables
+// These are the global variables.
 int b = 3;
 int recordsGenerated = 0;
 mutex m;
 
-//Shared variables
+// These are the shared variables.
 vector<Record> buffer;
 int storeWideTotalSales[10];
 int monthWiseTotalSales[12];
@@ -27,49 +27,39 @@ int aggregateSales = 0;
 chrono::time_point<chrono::system_clock> startTime;
 chrono::time_point<chrono::system_clock> endTime;
 
-//Function Prototypes
+// These are the function prototypes.
 void producer(int storeID);
 void consumer(int consumerID);
 
-//Main Function
+// This is the main function.
 int main(int argc, char *argv[]) {
     int p, c;
     vector<thread> producers;
     vector<thread> consumers;
 
-    // Taking inputs
     cout << "Enter the number of producers: ";
     cin >> p;
     cout << "Enter the number of consumers: ";
     cin >> c;
 
-    // Initializing Shared Variables
     for (int i = 0; i < 10; i++)
         storeWideTotalSales[i] = 0;
     for (int i = 0; i < 12; i++)
         monthWiseTotalSales[i] = 0;
 
-    // Creating Producers
     for (int i = 0; i < p; i++)
         producers.push_back(thread(producer, i + 1));
-
-    // Creating Consumers
     for (int i = 0; i < c; i++)
         consumers.push_back(thread(consumer, i + 1));
-
-    // Joining Producers
     for (int i = 0; i < p; i++)
         producers[i].join();
-
-    // Joining Consumers
     for (int i = 0; i < c; i++)
         consumers[i].join();
 
-    // Calculating total time
     endTime = chrono::system_clock::now();
     chrono::duration<double> elapsedTime = endTime - startTime;
 
-    // Printing Overall Statistics
+    // This will print the overall statistics for the program.
     cout << "\nOverall Statistics:\n";
     cout << "Total Time: " << elapsedTime.count() << " seconds\n";
     cout << "Aggregate Sales: $" << aggregateSales << endl;
@@ -81,73 +71,57 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-// Producer Function
+// This is the producer function.
 void producer(int storeID) {
     Record record;
-    while (recordsGenerated < 1000) {
-        // Generating random sales information
+    while (recordsGenerated < 1000) 
+    {
         record.dd = (rand() % 30) + 1;
         record.mm = (rand() % 12) + 1;
         record.storeID = storeID;
         record.registerNum = (rand() % 6) + 1;
         record.saleAmount = (rand() % 950) + 50;
-
-        // Acquiring mutex
         m.lock();
-
-        // Adding record to buffer
         buffer.push_back(record);
         recordsGenerated++;
-
-        // Releasing mutex
         m.unlock();
 
-        // Sleeping for 5-40 milliseconds
         int sleepTime = (rand() % 36) + 5;
         this_thread::sleep_for(chrono::milliseconds(sleepTime));
     }
 }
 
-// Consumer Function
-void consumer(int consumerID) {
+// This is the consumer function.
+void consumer(int consumerID) 
+{
     int storeWideTotal = 0;
     int monthWiseTotal[12] = {0};
     while (recordsGenerated < 1000) {
-        // Acquiring mutex
         m.lock();
 
-        if (buffer.size() > 0) {
-            // Taking record from buffer
+        if (buffer.size() > 0) 
+        {
             Record record = buffer[buffer.size() - 1];
             buffer.pop_back();
-
-            // Calculating local totals
             storeWideTotal += record.saleAmount;
             monthWiseTotal[record.mm - 1] += record.saleAmount;
-
-            // Releasing mutex
             m.unlock();
         }
-        else {
-            // Releasing mutex
+        else 
+        {
             m.unlock();
             this_thread::sleep_for(chrono::milliseconds(5));
         }
     }
 
-    // Acquiring mutex
     m.lock();
-
-    // Adding local totals to global totals
     storeWideTotalSales[consumerID - 1] = storeWideTotal;
     for (int i = 0; i < 12; i++)
         monthWiseTotalSales[i] += monthWiseTotal[i];
     aggregateSales += storeWideTotal;
-
-    // Releasing mutex
     m.unlock();
 
-    // Printing local statistics
+    // This will print the local statistics.
     cout << "\nConsumer " << consumerID << " Statistics:\n";
     cout << "Store " << consumerID << " Total Sales: $" << storeWideTotal << endl;
     for (int i = 0; i < 12; i++)
