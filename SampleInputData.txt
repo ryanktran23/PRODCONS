@@ -1,0 +1,8 @@
+Enter the number of producers: 2
+Enter the number of consumers: 2
+
+Enter the number of producers: 5
+Enter the number of consumers: 5
+
+Enter the number of producers: 10
+Enter the number of consumers: 10
