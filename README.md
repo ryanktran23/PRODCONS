@@ -7,8 +7,15 @@ For: Ryan Tran (UID: 01127167)
 This is for Problem 1: Producer-Consumer problem.
 C++ is used for the programming language and VSCode is the IDE.
 
-To run the program, compile and run the program and the terminal
-will prompt the user for an input. It will prompt the user for:
+To run the program, in the terminal compile the code with 
+
+"g++ -std=c++11 main.cpp -lpthread -o main"
+
+and run the program,
+
+"./main"
+
+it will then prompt the user for an input. It will prompt the user for:
 
 "Enter number of producers: "
 
@@ -24,4 +31,3 @@ all 12 months. It will then show the total sales for each month specifically.
 The program will also print out the overall statistics for all consumer stores.
 This includes the total time and the aggregate sales for the # of consumers that
 the user input before.
-
